@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.indien.indien_backend.controller.response.LoginResponse;
 import com.indien.indien_backend.controller.response.OAuthTokenResponse;
+import com.indien.indien_backend.domain.member.Member;
 import com.indien.indien_backend.jwt.TokenProvider;
 import com.indien.indien_backend.oauth.Oauth2UserInfo;
 import com.indien.indien_backend.repository.MemberRepository;
@@ -54,7 +55,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         return null;
     }
 
-    private User getUserProfile(String providerName, OAuthTokenResponse tokenResponse, ClientRegistration provider)
+    private Member getUserProfile(String providerName, OAuthTokenResponse tokenResponse, ClientRegistration provider)
     {
         Map<String,Object> userAttributes = getUserAttributes(provider,tokenResponse);
         Oauth2UserInfo oauth2UserInfo = null;
@@ -64,6 +65,11 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         else{
             log.info("허용되지 않은 접근입니다.");
         }
+        String provide = oauth2UserInfo.getProvider();
+        String providerId =oauth2UserInfo.getProviderMemberId();
+        String email = oauth2UserInfo.getEmail();
+        String nickName = oauth2UserInfo.getNickname();
+
         return null;
     }
 
