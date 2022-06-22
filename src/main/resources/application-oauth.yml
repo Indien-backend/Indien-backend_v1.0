@@ -1,0 +1,29 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 435700c09f876f66ab2faf35be35ea10
+            redirect-uri: http://localhost:8080/oauth/login/kakao
+            client-authentication-method: POST
+            client-secret: ez0Y2rPQsGeIkepBnCOBrBovUA64yAdv
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+              - gender
+              - birthday
+            client_name: kakao
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+jwt: #spring-boot-jpa-react-com-indien-indienbackend-thseo-security-jwt-local-test-secret
+  secret: c3ByaW5nLWJvb3QtanBhLXJlYWN0LWNvbS1pbmRpZW4taW5kaWVuYmFja2VuZC10aHNlby1zZWN1cml0eS1qd3QtbG9jYWwtdGVzdC1zZWNyZXQK
+redis:
+  host: localhost
+  port: 6379
