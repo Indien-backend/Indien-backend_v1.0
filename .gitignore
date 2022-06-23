@@ -8,7 +8,6 @@
 /dataSources.local.xml
 .gradle
 out
-###
 .metadata
 bin/
 tm/
@@ -18,3 +17,6 @@ tm/
 .settings/
 .project
 .classpath
+build
+src/main/resources/application-*.yml
+
