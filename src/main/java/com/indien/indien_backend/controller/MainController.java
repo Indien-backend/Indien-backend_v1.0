@@ -3,20 +3,19 @@ package com.indien.indien_backend.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class MainController {
 	
 	@GetMapping(value="/main")
 	public Map<String, String> home() {
-		
-		// ·Î±×ÀÎ ¿©ºÎ È®ÀÎÇØ¼­ À¯Àú Á¤º¸ °¡Á®¿À±â
-		System.out.println("ÁøÀÔ");
-		// ¿µÈ­ ¸ñ·Ï °¡Á®¿À±â
+
+		System.out.println("ì§„ì…");
+		// ì •ë³´ ë‹´ì•„ì„œ ë¦¬í„´
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("res", "È¨È­¸éÁøÀÔ");
+		map.put("res", "ì˜í™” ì •ë³´ ì‘ë‹µ ì™„ë£Œ");
 		
 		return  map;
 	}
