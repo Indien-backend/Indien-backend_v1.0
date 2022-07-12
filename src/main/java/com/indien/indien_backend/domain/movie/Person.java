@@ -1,10 +1,8 @@
 package com.indien.indien_backend.domain.movie;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,31 +21,20 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table(name="MOVIE")
-public class Movie {
+@Table(name="PERSON")
+public class Person {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "movie_id")
+	@Column(name = "person_id")
 	private Long id;
+	
+	private String name;
 	
 	@Column(nullable = false, unique = true)
 	private String code;
 	
-	private String title;
-	
-	private String prdYear; 
-	
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	private LocalDateTime openDate;
-	
-	private String nation;
-	
-	private Set<String> posters;
-	
-	private Set<String> steelCut;
-	
-	private String synopsis;
+	private String img;
 	
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime created;
@@ -55,15 +42,11 @@ public class Movie {
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime updated;
 	
-	private BigDecimal runningTm;
+	@OneToMany(mappedBy="PERSON")
+	private List<MoviePerson> movies = new ArrayList<>();
 	
-	@OneToMany(mappedBy="MOVIE")
-	private List<MoviePerson> persons = new ArrayList<>();
-	
-	public enum Audit{
-		
-		// 연령제한 등급
-		
+	public enum Part{
+		// 파트
 	}
 	
 }
