@@ -55,6 +55,9 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         return null;
     }
 
+    /*
+    * Resource Server에서 받아온 User정보를 가공
+    */
     private Member getUserProfile(String providerName, OAuthTokenResponse tokenResponse, ClientRegistration provider)
     {
         Map<String,Object> userAttributes = getUserAttributes(provider,tokenResponse);
@@ -69,10 +72,15 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         String providerId =oauth2UserInfo.getProviderMemberId();
         String email = oauth2UserInfo.getEmail();
         String nickName = oauth2UserInfo.getNickname();
-
+        //[BACK]
+        // if exist member ? find member -> return new token : create member
+        //
         return null;
     }
 
+    /*
+    * Resource Server 에서 받은 Token으로 User정보 받아오기
+    */
     private Map<String, Object> getUserAttributes(ClientRegistration provider, OAuthTokenResponse tokenResponse)
     {
         return WebClient.create()
@@ -84,6 +92,9 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
             .block();
     }
 
+    /*
+    * 인가코드(code)로 Resource Server 에서 토큰 받아오기
+    */
     private OAuthTokenResponse getToken(String code, ClientRegistration provider){
         return WebClient.create()
             .post()

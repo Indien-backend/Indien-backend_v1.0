@@ -7,9 +7,9 @@ import com.indien.indien_backend.oauth.Oauth2UserInfo;
 public class KakaoUserInfo extends Oauth2UserInfo
 {
     public KakaoUserInfo(Map<String, Object> userAttributes)
-    {
-        super(userAttributes);
-    }
+{
+    super(userAttributes);
+}
 
     @Override
     public String getProviderMemberId()

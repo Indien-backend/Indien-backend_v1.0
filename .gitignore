@@ -9,5 +9,5 @@
 
 .gradle
 out
-build
+/build
 src/main/resources/application-*.yml
