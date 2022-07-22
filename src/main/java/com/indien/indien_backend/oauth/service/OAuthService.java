@@ -3,6 +3,7 @@ package com.indien.indien_backend.oauth.service;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 import com.indien.indien_backend.controller.response.LoginResponse;
 import com.indien.indien_backend.controller.response.OAuthTokenResponse;
@@ -14,37 +15,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2User>
+public class OAuthService
 {
     public static final String BEARER_TYPE = "Bearer";
     private final InMemoryClientRegistrationRepository inMemoryRepository;
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
 
-    @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException
-    {
-        return null;
-    }
 
     @Transactional
     public LoginResponse login(String providerName, String code)
@@ -68,13 +57,23 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         else{
             log.info("허용되지 않은 접근입니다.");
         }
+        assert oauth2UserInfo != null;
+
         String provide = oauth2UserInfo.getProvider();
-        String providerId =oauth2UserInfo.getProviderMemberId();
+        String providerId = oauth2UserInfo.getProviderId();
         String email = oauth2UserInfo.getEmail();
         String nickName = oauth2UserInfo.getNickname();
-        //[BACK]
-        // if exist member ? find member -> return new token : create member
-        //
+//[BACK]
+// OauthService 에서 Security 로직을 탈 필요가 없다.
+// 그 이유는 authorization code로 token 을 받아오고
+// 해당 토큰으로 유저 정보를 가져오고
+// 해당 유저 정보로 access 토큰을 만들어 클라이언트에게 전달해주면 끝이기 때문.
+// if exist member ? find member -> return new token : create member
+        Optional<Member> member = memberRepository.findByEmail(email);
+
+        member.orElse(Member.builder()
+                .email()
+            .build())
         return null;
     }
 

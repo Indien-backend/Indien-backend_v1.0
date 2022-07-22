@@ -27,6 +27,8 @@ public class Member
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
+    //[BACK]
+    // MemberDetail를 테이블로 빼지말고 Eembeded 타입으로 정의
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MemberDetail memberDetail;
 

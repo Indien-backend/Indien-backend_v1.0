@@ -4,12 +4,13 @@ import java.util.Map;
 
 import com.indien.indien_backend.oauth.Oauth2UserInfo;
 
-public class KakaoUserInfo extends Oauth2UserInfo
+public class KakaoUserInfo implements Oauth2UserInfo
 {
-    public KakaoUserInfo(Map<String, Object> userAttributes)
-{
-    super(userAttributes);
-}
+    private final Map<String, Object> attributes;
+    public KakaoUserInfo(Map<String, Object> attributes)
+    {
+        this.attributes=attributes;
+    }
 
     @Override
     public String getProviderMemberId()
@@ -21,6 +22,12 @@ public class KakaoUserInfo extends Oauth2UserInfo
     public String getProvider()
     {
         return "kakao";
+    }
+
+    @Override
+    public String getProviderId()
+    {
+        return attributes.get("sub").toString();
     }
 
     @Override
