@@ -20,6 +20,8 @@ public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurity
     public void configure(HttpSecurity builder) throws Exception
     {
         JwtFilter cusomFilter = new JwtFilter(tokenProvider);
+
+        //UsernamePasswordAuthenticationFilter 수행 전에 JwtFilter 수행
         builder.addFilterBefore(cusomFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

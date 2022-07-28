@@ -2,7 +2,7 @@ package com.indien.indien_backend.service;
 
 import com.indien.indien_backend.domain.RefreshToken;
 import com.indien.indien_backend.domain.member.Member;
-import com.indien.indien_backend.dto.MemberRequestDto;
+import com.indien.indien_backend.dto.MemberLoginDto;
 import com.indien.indien_backend.dto.TokenRequestDto;
 import com.indien.indien_backend.dto.jwt.TokenDto;
 import com.indien.indien_backend.dto.member.MemberResponseDto;
@@ -13,10 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class AuthService
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public MemberResponseDto signup(MemberRequestDto memberResponseDto)
+    public MemberResponseDto signup(MemberLoginDto memberResponseDto)
     {
         if(memberRepository.existsMemberByEmail(memberResponseDto.getEmail())){
             throw new RuntimeException("이미 가입되어있는 이메일입니다.");
@@ -39,14 +39,21 @@ public class AuthService
     }
 
     @Transactional
-    public TokenDto login(MemberRequestDto memberRequestDto)
+    public TokenDto login(MemberLoginDto memberLoginDto)
     {
         // 1. login ID/PW 를 기반으로 AuthenticationToken 생성
-        UsernamePasswordAuthenticationToken authenticationToken =memberRequestDto.toAuthentication();
+        UsernamePasswordAuthenticationToken authenticationToken = memberLoginDto.toAuthentication();
 
         // 2. 실제로 검증(비밀번호 체크) 가 이뤄지는 부분
         // authenticate 메서드가 실행이 될때 CustomuserDetailService에서 만들었던 loadUserByUsername 메서드가 실행됨.
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        Authentication authentication = null;
+        try
+        {
+            authentication= authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        }
+        catch (UsernameNotFoundException e){
+            e.printStackTrace();
+        }
 
         // 3. 인증정보 기반으로 JWT 생성
         TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);

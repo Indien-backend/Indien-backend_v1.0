@@ -3,18 +3,26 @@ package com.indien.indien_backend.oauth.service;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 
-import com.indien.indien_backend.controller.response.LoginResponse;
 import com.indien.indien_backend.controller.response.OAuthTokenResponse;
+import com.indien.indien_backend.domain.RefreshToken;
+import com.indien.indien_backend.domain.common.Authority;
 import com.indien.indien_backend.domain.member.Member;
+import com.indien.indien_backend.dto.MemberLoginDto;
+import com.indien.indien_backend.dto.jwt.TokenDto;
 import com.indien.indien_backend.jwt.TokenProvider;
 import com.indien.indien_backend.oauth.Oauth2UserInfo;
 import com.indien.indien_backend.repository.MemberRepository;
+import com.indien.indien_backend.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.stereotype.Service;
@@ -33,15 +41,44 @@ public class OAuthService
     private final InMemoryClientRegistrationRepository inMemoryRepository;
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @Transactional
-    public LoginResponse login(String providerName, String code)
+    public TokenDto login(String providerName, String code)
     {
         ClientRegistration provider = inMemoryRepository.findByRegistrationId(providerName);
         OAuthTokenResponse tokenResponse = getToken(code,provider);
-        getUserProfile(providerName,tokenResponse,provider);
-        return null;
+        Member userProfile = getUserProfile(providerName, tokenResponse, provider);
+
+        MemberLoginDto memberLoginDto = new MemberLoginDto(userProfile.getEmail(), userProfile.getPasswd(), userProfile.getProvider());
+        UsernamePasswordAuthenticationToken authenticationToken = memberLoginDto.toAuthentication();
+
+        Authentication authentication = null;
+        try
+        {
+            authentication= authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        }
+
+        catch (UsernameNotFoundException e){
+            e.printStackTrace();
+        }
+
+        //[Back]
+        // return token
+        TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
+
+        RefreshToken refreshToken = RefreshToken.builder()
+            .key(authentication.getName())
+            .value(tokenDto.getRefreshToken())
+            .build();
+
+        refreshTokenRepository.save(refreshToken);
+
+        // 5. 토큰 발급
+        return tokenDto;
     }
 
     /*
@@ -60,7 +97,7 @@ public class OAuthService
         assert oauth2UserInfo != null;
 
         String provide = oauth2UserInfo.getProvider();
-        String providerId = oauth2UserInfo.getProviderId();
+//        String providerId = oauth2UserInfo.getProviderId();
         String email = oauth2UserInfo.getEmail();
         String nickName = oauth2UserInfo.getNickname();
 //[BACK]
@@ -68,13 +105,18 @@ public class OAuthService
 // 그 이유는 authorization code로 token 을 받아오고
 // 해당 토큰으로 유저 정보를 가져오고
 // 해당 유저 정보로 access 토큰을 만들어 클라이언트에게 전달해주면 끝이기 때문.
-// if exist member ? find member -> return new token : create member
-        Optional<Member> member = memberRepository.findByEmail(email);
+// return member or new member
+        Member member = memberRepository.findByEmailAndProvider(email, provide)
+            .orElse(Member.builder()
+                .email(email)
+                .provider(provide)
+                .authority(Authority.ROLE_USER)
+                .passwd(passwordEncoder.encode(email + provide))
+                .build());
 
-        member.orElse(Member.builder()
-                .email()
-            .build())
-        return null;
+        memberRepository.save(member);
+
+        return member;
     }
 
     /*

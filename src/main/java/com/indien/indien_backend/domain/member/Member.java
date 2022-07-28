@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
@@ -19,10 +20,13 @@ public class Member
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
     private String passwd;
+
+    @Comment("로그인 경로")
+    private String provider;
 
     @Enumerated(EnumType.STRING)
     private Authority authority;
@@ -37,9 +41,10 @@ public class Member
     private Instant updated;
 
     @Builder
-    public Member(String email, String passwd, Authority authority) {
+    public Member(String email, String passwd, String provider, Authority authority) {
         this.email = email;
         this.passwd = passwd;
+        this.provider = provider;
         this.authority = authority;
     }
 }
